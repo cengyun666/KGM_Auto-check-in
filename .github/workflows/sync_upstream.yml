@@ -23,7 +23,7 @@ jobs:
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
-      - name: 绑定上游源仓库（避免重复添加报错）
+      - name: 绑定上游源仓库
         run: |
           git remote remove upstream || true
           git remote add upstream https://github.com/${{ env.UPSTREAM_REPO }}.git
@@ -34,5 +34,10 @@ jobs:
           git checkout ${{ env.TARGET_BRANCH }}
           git merge upstream/${{ env.TARGET_BRANCH }} -m "Auto sync upstream $(date '+%Y-%m-%d')"
 
-      - name: 推送更新到自己仓库
-        run: git push origin ${{ env.TARGET_BRANCH }}
+      - name: 仅存在更新时推送
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            git push origin ${{ env.TARGET_BRANCH }}
+          else
+            echo "本地与上游无差异，无需推送，本次同步完成保活"
+          fi
