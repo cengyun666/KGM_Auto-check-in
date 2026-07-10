@@ -23,8 +23,9 @@ jobs:
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
-      - name: 绑定上游源仓库
+      - name: 绑定上游源仓库（避免重复添加报错）
         run: |
+          git remote remove upstream || true
           git remote add upstream https://github.com/${{ env.UPSTREAM_REPO }}.git
           git fetch upstream
 
